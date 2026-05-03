@@ -58,18 +58,20 @@
     </div>
 
     <!-- MÀN 4: TẠO PHÒNG -->
-    <div id="screen-create" class="screen">
-        <h2>Set Kèo 🐺</h2>
-        <input type="number" id="room-max" placeholder="Số lượng ng (Min 5)" value="5" min="5">
-        <select id="setup-type" onchange="toggleRoles()">
-            <select id="setup-type" onchange="toggleRoles()">
-            <option value="auto">Tự động sắp xếp vai trò</option>
-            <option value="manual">Tuỳ chỉnh vai trò tự chọn</option>
-        </select>
-        <div id="manual-roles" class="roles-grid" style="display: none;"></div>
-        <button onclick="createRoom()">Xong ✨</button>
-        <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
-    </div>
+<div id="screen-create" class="screen">
+    <h2>Set Kèo 🐺</h2>
+    <input type="number" id="room-max" placeholder="Số lượng ng (Min 5)" value="5" min="5">
+    
+    <!-- Chỉ giữ lại MỘT thẻ select duy nhất thôi má ơi -->
+    <select id="setup-type" onchange="toggleRoles()">
+        <option value="auto">Tự động sắp xếp vai trò</option>
+        <option value="manual">Tuỳ chỉnh vai trò tự chọn</option>
+    </select>
+
+    <div id="manual-roles" class="roles-grid" style="display: none;"></div>
+    <button onclick="createRoom()">Xong ✨</button>
+    <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
+</div>
 
     <!-- MÀN 5: TÌM PHÒNG -->
     <div id="screen-join" class="screen">
