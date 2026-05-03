@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Sói Gen Z 🐺</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #1a1a1d; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .screen { display: none; text-align: center; width: 100%; max-width: 400px; padding: 20px; background: #2b2b30; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        input, button, select { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; }
+        input { background: #3f3f46; color: #fff; outline: none; }
+        button { background: #007aff; color: white; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #005bb5; transform: scale(1.02); }
+        .btn-secondary { background: #47474a; }
+        .btn-secondary:hover { background: #333336; }
+        .avatar { font-size: 80px; cursor: pointer; transition: 0.2s; margin: 20px 0; }
+        .avatar:hover { transform: scale(1.1); }
+        .roles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; max-height: 200px; overflow-y: auto; text-align: left; padding: 10px; background: #1a1a1d; border-radius: 8px; margin-top: 10px; font-size: 14px; }
+        .room-item { background: #3f3f46; padding: 10px; margin: 5px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .room-item button { width: auto; padding: 5px 10px; margin: 0; }
+        #toast { position: fixed; top: 20px; right: 20px; background: #ff3b30; color: white; padding: 15px; border-radius: 8px; display: none; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .player-list { text-align: left; background: #1a1a1d; padding: 10px; border-radius: 8px; min-height: 100px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="toast">Lỗi r m ơi 💀</div>
+
+    <!-- MÀN 1: TẠO TÀI KHOẢN -->
+    <div id="screen-register" class="screen active">
+        <h2>Tạo Acc Đi M 💅</h2>
+        <input type="text" id="reg-nickname" placeholder="Biệt danh (trùng tẹt ga)">
+        <input type="text" id="reg-username" placeholder="Tên đăng nhập (K được trùng)">
+        <input type="password" id="reg-password" placeholder="Mật khẩu">
+        <button onclick="register()">Tạo lẹ 🚀</button>
+    </div>
+
+    <!-- MÀN 2: CHỌN SKIN -->
+    <div id="screen-skin" class="screen">
+        <h2>Chọn Skin ✨</h2>
+        <p>Bấm vô hình để chọn r tiếp tục</p>
+        <div style="display: flex; justify-content: space-around;">
+            <div class="avatar" onclick="selectSkin('nam')">🧍‍♂️</div>
+            <div class="avatar" onclick="selectSkin('nu')">🧍‍♀️</div>
+        </div>
+    </div>
+
+    <!-- MÀN 3: MENU CHÍNH -->
+    <div id="screen-menu" class="screen">
+        <h2>Menu Chính 🐧</h2>
+        <div id="main-avatar" class="avatar" onclick="switchScreen('screen-skin')" title="Đổi skin">🧍‍♂️</div>
+        <p id="welcome-text"></p>
+        <button onclick="showCreateRoom()">Tạo phòng</button>
+        <button onclick="showJoinRoom()" class="btn-secondary">Tìm phòng</button>
+        <button onclick="quickJoin()" class="btn-secondary">Vào bừa 🎲</button>
+    </div>
+
+    <!-- MÀN 4: TẠO PHÒNG -->
+    <div id="screen-create" class="screen">
+        <h2>Set Kèo 🐺</h2>
+        <input type="number" id="room-max" placeholder="Số lượng ng (Min 5)" value="5" min="5">
+        <select id="setup-type" onchange="toggleRoles()">
+            <select id="setup-type" onchange="toggleRoles()">
+            <option value="auto">Tự động sắp xếp vai trò</option>
+            <option value="manual">Tuỳ chỉnh vai trò tự chọn</option>
+        </select>
+        <div id="manual-roles" class="roles-grid" style="display: none;"></div>
+        <button onclick="createRoom()">Xong ✨</button>
+        <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
+    </div>
+
+    <!-- MÀN 5: TÌM PHÒNG -->
+    <div id="screen-join" class="screen">
+        <h2>Danh sách phòng 🫩</h2>
+        <div id="room-list" style="max-height: 250px; overflow-y: auto;"></div>
+        <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
+    </div>
+
+    <!-- MÀN 6: TRONG PHÒNG CHỜ -->
+    <div id="screen-waiting" class="screen">
+        <h2>Phòng: <span id="current-room-id"></span></h2>
+        <p>Tụi nó vô nè:</p>
+        <div class="player-list" id="player-list-ui"></div>
+        <button id="btn-start" style="display: none;" onclick="startGame()">Bắt đầu game 🫦</button>
+        <button onclick="leaveRoom()" class="btn-secondary">Thoát</button>
+    </div>
+
+    <!-- MÀN 7: HIỆN ROLE KHI CHƠI -->
+    <div id="screen-playing" class="screen">
+        <h2>Đêm buông xuống... 🌑</h2>
+        <h1 id="my-role" style="color: #ff3b30; font-size: 30px; margin: 30px 0;"></h1>
+        <p>Suỵt, ngậm cái miệng lại và làm nhiệm vụ đi m 💀</p>
+    </div>
+
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io('https://ma-s-i-of-longg.onrender.com');
+        let myUsername = '';
+        let mySkin = 'nam';
+        let currentRoomId = null;
+
+        const ALL_ROLES = [
+            'Dân Làng', 'Tiên Tri', 'Bảo Vệ', 'Thợ Săn', 'Phù Thủy', 'Thần Tình Yêu', 
+            'Chị Em', 'Thị Trưởng', 'Hoàng Tử', 'Người Thổi Còi', 'Già Làng', 'Thám Tử', 
+            'Người Hóa Sói', 'Tiên Tri Tập Sự', 'Ma Sói', 'Sói Con', 'Pháp Sư Sói', 
+            'Kẻ Phản Bội', 'Sói Huyền Bí', 'Sói Đầu Đàn', 'Sói Mơ Ngủ', 'Kẻ Chán Đời', 
+            'Ma Cà Rồng', 'Trưởng Giáo Phái', 'Kẻ Ám Sát', 'Người Thay Đổi', 'Đứa Trẻ Hoang Dã'
+        ];
+
+        // Render list vai trò ra html
+        const rolesGrid = document.getElementById('manual-roles');
+        ALL_ROLES.forEach(role => {
+            rolesGrid.innerHTML += `<label><input type="checkbox" value="${role}" class="role-cb"> ${role}</label>`;
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function register() {
+            const nickname = document.getElementById('reg-nickname').value;
+            myUsername = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            if(!nickname || !myUsername || !password) return showToast('Điền thiếu kìa m mù à 💀');
+            socket.emit('register', { nickname, username: myUsername, password });
+        }
+
+        socket.on('register_error', data => showToast(data.msg));
+        socket.on('register_success', data => {
+            document.getElementById('welcome-text').innerText = `Hello ${data.nickname} ✨`;
+            switchScreen('screen-skin');
+        });
+
+        function selectSkin(skin) {
+            mySkin = skin;
+            socket.emit('set_skin', { username: myUsername, skin });
+            document.getElementById('main-avatar').innerText = skin === 'nam' ? '🧍‍♂️' : '🧍‍♀️';
+            switchScreen('screen-menu');
+        }
+
+        function toggleRoles() {
+            const type = document.getElementById('setup-type').value;
+            document.getElementById('manual-roles').style.display = type === 'manual' ? 'grid' : 'none';
+        }
+
+        function showCreateRoom() { switchScreen('screen-create'); }
+
+        function createRoom() {
+            const maxPlayers = document.getElementById('room-max').value;
+            const setupType = document.getElementById('setup-type').value;
+            let customRoles = [];
+            if(setupType === 'manual') {
+                document.querySelectorAll('.role-cb:checked').forEach(cb => customRoles.push(cb.value));
+                if(customRoles.length === 0) return showToast('Chưa chọn vai trò nào kìa má 😡');
+            }
+            socket.emit('create_room', { username: myUsername, setupType, customRoles, maxPlayers: parseInt(maxPlayers) });
+        }
+
+        socket.on('room_error', data => showToast(data.msg));
+        
+        socket.on('room_created', data => {
+            currentRoomId = data.roomId;
+            document.getElementById('current-room-id').innerText = data.roomId;
+            document.getElementById('btn-start').style.display = 'block'; // Host thì thấy nút start
+            updatePlayerList(data.room.players);
+            switchScreen('screen-waiting');
+        });
+
+        function showJoinRoom() {
+            socket.emit('get_rooms');
+            switchScreen('screen-join');
+        }
+
+        socket.on('room_list', rooms => {
+            const list = document.getElementById('room-list');
+            list.innerHTML = '';
+            if(rooms.length === 0) return list.innerHTML = '<p>Trống trơn, m tự tạo đi 💀</p>';
+            rooms.forEach(r => {
+                list.innerHTML += `
+                    <div class="room-item">
+                        <span>Phòng ${r.id} (${r.players.length}/${r.maxPlayers} ng)</span>
+                        <button onclick="joinRoom('${r.id}')">Vô</button>
+                    </div>`;
+            });
+        });
+
+        function joinRoom(roomId) {
+            socket.emit('join_room', { username: myUsername, roomId });
+        }
+
+        function quickJoin() {
+            socket.emit('quick_join', { username: myUsername });
+        }
+
+        socket.on('player_joined', data => {
+            currentRoomId = data.room.id;
+            document.getElementById('current-room-id').innerText = currentRoomId;
+            document.getElementById('btn-start').style.display = data.room.host === myUsername ? 'block' : 'none';
+            updatePlayerList(data.room.players);
+            if(document.getElementById('screen-waiting').classList.contains('active') === false) {
+                switchScreen('screen-waiting');
+            }
+        });
+
+        function updatePlayerList(players) {
+            const ui = document.getElementById('player-list-ui');
+            ui.innerHTML = players.map(p => `<div>${p.skin === 'nam' ? '🧍‍♂️' : '🧍‍♀️'} ${p.nickname}</div>`).join('');
+        }
+
+        function startGame() {
+            socket.emit('start_game', { username: myUsername, roomId: currentRoomId });
+        }
+
+        socket.on('game_started', data => {
+            showToast(data.msg);
+            switchScreen('screen-playing');
+        });
+
+        socket.on('your_role', data => {
+            document.getElementById('my-role').innerText = `MÀY LÀ: ${data.role.toUpperCase()}`;
+        });
+
+        function leaveRoom() {
+            // T lười viết logic out phòng trên server r, bấm nút này về menu tạm đi 🐧
+            currentRoomId = null;
+            switchScreen('screen-menu');
+        }
+    </script>
+</body>
+</html>
