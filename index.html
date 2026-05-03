@@ -227,7 +227,7 @@
         });
 
         socket.on('your_role', data => {
-            document.getElementById('my-role').innerText = `MÀY LÀ: ${data.role.toUpperCase()}`;
+            document.getElementById('my-role').innerText = `MÀY LÀ: ${(data.role || "Chưa rõ").toUpperCase()}`;
         });
 
         function leaveRoom() {
