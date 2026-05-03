@@ -8,9 +8,8 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: { 
-        origin: "https://ma-s-i-of-longg-cerj97tyh-230thayongno-commits-projects.vercel.app",
-        methods: ["GET", "POST"],
-        credentials: true
+        origin: "*", // Để dấu sao luôn cho t, chấp hết mọi loại link Vercel 💅
+        methods: ["GET", "POST"]
     }
 });
 
