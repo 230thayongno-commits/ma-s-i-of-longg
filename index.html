@@ -58,20 +58,19 @@
     </div>
 
     <!-- MÀN 4: TẠO PHÒNG -->
-<div id="screen-create" class="screen">
-    <h2>Set Kèo 🐺</h2>
-    <input type="number" id="room-max" placeholder="Số lượng ng (Min 5)" value="5" min="5">
-    
-    <!-- Chỉ giữ lại MỘT thẻ select duy nhất thôi má ơi -->
-    <select id="setup-type" onchange="toggleRoles()">
-        <option value="auto">Tự động sắp xếp vai trò</option>
-        <option value="manual">Tuỳ chỉnh vai trò tự chọn</option>
-    </select>
+    <div id="screen-create" class="screen">
+        <h2>Set Kèo 🐺</h2>
+        <input type="number" id="room-max" placeholder="Số lượng ng (Min 5)" value="5" min="5">
+        
+        <select id="setup-type" onchange="toggleRoles()">
+            <option value="auto">Tự động sắp xếp vai trò</option>
+            <option value="manual">Tuỳ chỉnh vai trò tự chọn</option>
+        </select>
 
-    <div id="manual-roles" class="roles-grid" style="display: none;"></div>
-    <button onclick="createRoom()">Xong ✨</button>
-    <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
-</div>
+        <div id="manual-roles" class="roles-grid" style="display: none;"></div>
+        <button onclick="createRoom()">Xong ✨</button>
+        <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
+    </div>
 
     <!-- MÀN 5: TÌM PHÒNG -->
     <div id="screen-join" class="screen">
@@ -96,6 +95,14 @@
         <p>Suỵt, ngậm cái miệng lại và làm nhiệm vụ đi m 💀</p>
     </div>
 
+    <!-- MÀN 8: BAN ĐÊM (Mới thêm nè má) -->
+    <div id="screen-night" class="screen">
+        <h2 id="night-title">Đêm thứ 1 🌑</h2>
+        <p>Sói đag đi lùng sục... cẩn thận cái nết m nha 🐺</p>
+        <div class="player-list" id="night-player-list"></div>
+        <p style="font-size: 12px; color: gray;">(Đợi t code chức năng cắn ng đã má 💀)</p>
+    </div>
+
     <script src="https://ma-s-i-of-longg.onrender.com/socket.io/socket.io.js"></script>
     <script>
         const socket = io('https://ma-s-i-of-longg.onrender.com');
@@ -111,7 +118,6 @@
             'Ma Cà Rồng', 'Trưởng Giáo Phái', 'Kẻ Ám Sát', 'Người Thay Đổi', 'Đứa Trẻ Hoang Dã'
         ];
 
-        // Render list vai trò ra html
         const rolesGrid = document.getElementById('manual-roles');
         ALL_ROLES.forEach(role => {
             rolesGrid.innerHTML += `<label><input type="checkbox" value="${role}" class="role-cb"> ${role}</label>`;
@@ -173,7 +179,7 @@
         socket.on('room_created', data => {
             currentRoomId = data.roomId;
             document.getElementById('current-room-id').innerText = data.roomId;
-            document.getElementById('btn-start').style.display = 'block'; // Host thì thấy nút start
+            document.getElementById('btn-start').style.display = 'block'; 
             updatePlayerList(data.room.players);
             switchScreen('screen-waiting');
         });
@@ -232,8 +238,15 @@
             document.getElementById('my-role').innerText = `MÀY LÀ: ${(data.role || "Chưa rõ").toUpperCase()}`;
         });
 
+        // LOGIC BAN ĐÊM (Xử lý khi server gửi start_night)
+        socket.on('start_night', data => {
+            document.getElementById('night-title').innerText = `Đêm thứ ${data.nightNumber} 🌑`;
+            document.getElementById('night-player-list').innerHTML = document.getElementById('player-list-ui').innerHTML;
+            switchScreen('screen-night');
+            console.log("Sang đêm r đó má ✨");
+        });
+
         function leaveRoom() {
-            // T lười viết logic out phòng trên server r, bấm nút này về menu tạm đi 🐧
             currentRoomId = null;
             switchScreen('screen-menu');
         }
