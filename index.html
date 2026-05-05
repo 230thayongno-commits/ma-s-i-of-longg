@@ -5,39 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ma Sói Gen Z 🐺</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #1a1a1d; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .screen { display: none; text-align: center; width: 100%; max-width: 400px; padding: 20px; background: #2b2b30; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #1a1a1d; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .screen { display: none; text-align: center; width: 100%; max-width: 450px; padding: 20px; background: #2b2b30; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
         .active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        input, button, select { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; }
+        
+        input, button, select { width: 90%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
         input { background: #3f3f46; color: #fff; outline: none; }
         button { background: #007aff; color: white; cursor: pointer; font-weight: bold; transition: 0.2s; }
         button:hover { background: #005bb5; transform: scale(1.02); }
         .btn-secondary { background: #47474a; }
         .btn-secondary:hover { background: #333336; }
-        .avatar { font-size: 80px; cursor: pointer; transition: 0.2s; margin: 20px 0; }
+        .btn-danger { background: #ff3b30; }
+        
+        .avatar { font-size: 80px; cursor: pointer; transition: 0.2s; margin: 20px 0; display: inline-block; }
         .avatar:hover { transform: scale(1.1); }
+        
         .roles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; max-height: 200px; overflow-y: auto; text-align: left; padding: 10px; background: #1a1a1d; border-radius: 8px; margin-top: 10px; font-size: 14px; }
-        .room-item { background: #3f3f46; padding: 10px; margin: 5px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .room-item, .rank-item { background: #3f3f46; padding: 10px; margin: 5px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .room-item button { width: auto; padding: 5px 10px; margin: 0; }
+        
         #toast { position: fixed; top: 20px; right: 20px; background: #ff3b30; color: white; padding: 15px; border-radius: 8px; display: none; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .player-list { text-align: left; background: #1a1a1d; padding: 10px; border-radius: 8px; min-height: 100px; margin-bottom: 15px; }
+        
+        .player-list { text-align: left; background: #1a1a1d; padding: 10px; border-radius: 8px; min-height: 100px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; }
+        .player-item { padding: 8px; margin: 5px 0; background: #3f3f46; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; }
+        .player-item:hover { background: #52525b; }
+        .player-selected { background: #007aff !important; }
+
+        /* Khung Chat */
+        .chat-box { background: #1a1a1d; border-radius: 8px; padding: 10px; margin-top: 15px; height: 150px; display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; overflow-y: auto; text-align: left; font-size: 14px; margin-bottom: 10px; }
+        .chat-input-wrapper { display: flex; gap: 5px; }
+        .chat-input-wrapper input { margin: 0; padding: 8px; flex: 1; }
+        .chat-input-wrapper button { margin: 0; width: 60px; padding: 8px; }
+
+        /* Voice Chat */
+        .voice-controls { display: flex; justify-content: space-around; margin: 10px 0; }
+        .voice-btn { width: 45%; padding: 10px; background: #28a745; }
+        .voice-btn.muted { background: #ff3b30; }
+
+        .tabs { display: flex; justify-content: space-around; margin-bottom: 15px; }
+        .tab { cursor: pointer; color: #888; font-weight: bold; }
+        .tab.active-tab { color: #fff; border-bottom: 2px solid #007aff; }
     </style>
 </head>
 <body>
 
     <div id="toast">Lỗi r m ơi 💀</div>
 
-    <!-- MÀN 1: TẠO TÀI KHOẢN -->
-    <div id="screen-register" class="screen active">
-        <h2>Tạo Acc Đi M 💅</h2>
-        <input type="text" id="reg-nickname" placeholder="Biệt danh (trùng tẹt ga)">
-        <input type="text" id="reg-username" placeholder="Tên đăng nhập (K được trùng)">
-        <input type="password" id="reg-password" placeholder="Mật khẩu">
-        <button onclick="register()">Tạo lẹ 🚀</button>
+    <!-- MÀN 0: AUTH (ĐĂNG NHẬP / ĐĂNG KÝ) -->
+    <div id="screen-auth" class="screen active">
+        <div class="tabs">
+            <span class="tab active-tab" onclick="switchAuthTab('login')">Đăng Nhập 🔑</span>
+            <span class="tab" onclick="switchAuthTab('register')">Tạo Acc 💅</span>
+        </div>
+
+        <div id="form-login">
+            <input type="text" id="login-username" placeholder="Tên đăng nhập">
+            <input type="password" id="login-password" placeholder="Mật khẩu">
+            <button onclick="login()">Vô Game 🚀</button>
+        </div>
+
+        <div id="form-register" style="display: none;">
+            <input type="text" id="reg-nickname" placeholder="Biệt danh (trùng tẹt ga)">
+            <input type="text" id="reg-username" placeholder="Tên đăng nhập (K được trùng)">
+            <input type="password" id="reg-password" placeholder="Mật khẩu">
+            <button onclick="register()">Đăng ký lẹ 🚀</button>
+        </div>
     </div>
 
-    <!-- MÀN 2: CHỌN SKIN -->
+    <!-- MÀN 1: CHỌN SKIN -->
     <div id="screen-skin" class="screen">
         <h2>Chọn Skin ✨</h2>
         <p>Bấm vô hình để chọn r tiếp tục</p>
@@ -47,7 +84,7 @@
         </div>
     </div>
 
-    <!-- MÀN 3: MENU CHÍNH -->
+    <!-- MÀN 2: MENU CHÍNH -->
     <div id="screen-menu" class="screen">
         <h2>Menu Chính 🐧</h2>
         <div id="main-avatar" class="avatar" onclick="switchScreen('screen-skin')" title="Đổi skin">🧍‍♂️</div>
@@ -55,9 +92,19 @@
         <button onclick="showCreateRoom()">Tạo phòng</button>
         <button onclick="showJoinRoom()" class="btn-secondary">Tìm phòng</button>
         <button onclick="quickJoin()" class="btn-secondary">Vào bừa 🎲</button>
+        <button onclick="showLeaderboard()" class="btn-secondary" style="background: #ff9f0a;">Bảng Xếp Hạng 🏆</button>
     </div>
 
-    <!-- MÀN 4: TẠO PHÒNG -->
+    <!-- MÀN BẢNG XẾP HẠNG -->
+    <div id="screen-leaderboard" class="screen">
+        <h2>Cao Thủ Chém Gió 🏆</h2>
+        <div id="leaderboard-list" style="max-height: 250px; overflow-y: auto; text-align: left;">
+            <!-- Render từ server -->
+        </div>
+        <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
+    </div>
+
+    <!-- MÀN 3: TẠO PHÒNG -->
     <div id="screen-create" class="screen">
         <h2>Set Kèo 🐺</h2>
         <input type="number" id="room-max" placeholder="Số lượng ng (Min 5)" value="5" min="5">
@@ -72,57 +119,95 @@
         <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
     </div>
 
-    <!-- MÀN 5: TÌM PHÒNG -->
+    <!-- MÀN 4: TÌM PHÒNG -->
     <div id="screen-join" class="screen">
         <h2>Danh sách phòng 🫩</h2>
         <div id="room-list" style="max-height: 250px; overflow-y: auto;"></div>
         <button onclick="switchScreen('screen-menu')" class="btn-secondary">Quay lại</button>
     </div>
 
-    <!-- MÀN 6: TRONG PHÒNG CHỜ -->
+    <!-- MÀN 5: TRONG PHÒNG CHỜ -->
     <div id="screen-waiting" class="screen">
         <h2>Phòng: <span id="current-room-id"></span></h2>
+        
+        <div class="voice-controls">
+            <button id="btn-mic" class="voice-btn muted" onclick="toggleMic()">Bật Mic 🎙️</button>
+            <button id="btn-speaker" class="voice-btn" onclick="toggleSpeaker()">Tắt Âm 🔇</button>
+        </div>
+
         <p>Tụi nó vô nè:</p>
         <div class="player-list" id="player-list-ui"></div>
+        
+        <div class="chat-box">
+            <div class="chat-messages" id="waiting-chat"></div>
+            <div class="chat-input-wrapper">
+                <input type="text" id="chat-input-waiting" placeholder="Chửi thề ở đây..." onkeypress="if(event.key === 'Enter') sendChat('waiting')">
+                <button onclick="sendChat('waiting')">Gửi</button>
+            </div>
+        </div>
+
         <button id="btn-start" style="display: none;" onclick="startGame()">Bắt đầu game 🫦</button>
-        <button onclick="leaveRoom()" class="btn-secondary">Thoát</button>
+        <button onclick="leaveRoom()" class="btn-danger">Thoát</button>
     </div>
 
-    <!-- MÀN 7: HIỆN ROLE KHI CHƠI -->
+    <!-- MÀN 6: HIỆN ROLE KHI CHƠI -->
     <div id="screen-playing" class="screen">
-        <h2>Đêm buông xuống... 🌑</h2>
-        <h1 id="my-role" style="color: #ff3b30; font-size: 30px; margin: 30px 0;"></h1>
-        <p>Suỵt, ngậm cái miệng lại và làm nhiệm vụ đi m 💀</p>
-    </div>
+        <h2 id="phase-title">Đêm buông xuống... 🌑</h2>
+        <h1 id="my-role" style="color: #ff3b30; font-size: 30px; margin: 10px 0;"></h1>
+        <p id="role-desc">Suỵt, ngậm cái miệng lại và làm nhiệm vụ đi m 💀</p>
+        
+        <!-- Khung hành động đêm -->
+        <div id="night-action-box" style="display: none; margin-top: 15px;">
+            <p id="action-prompt">Chọn mục tiêu của m:</p>
+            <div class="player-list" id="action-player-list"></div>
+            <button onclick="submitAction()" id="btn-submit-action">Chốt đơn 💅</button>
+        </div>
 
-    <!-- MÀN 8: BAN ĐÊM (Mới thêm nè má) -->
-    <div id="screen-night" class="screen">
-        <h2 id="night-title">Đêm thứ 1 🌑</h2>
-        <p>Sói đag đi lùng sục... cẩn thận cái nết m nha 🐺</p>
-        <div class="player-list" id="night-player-list"></div>
-        <p style="font-size: 12px; color: gray;">(Đợi t code chức năng cắn ng đã má 💀)</p>
+        <!-- Khung Vote ban ngày -->
+        <div id="day-vote-box" style="display: none; margin-top: 15px;">
+            <p>Vote treo cổ nó (hoặc Skip):</p>
+            <div class="player-list" id="vote-player-list"></div>
+            <button onclick="submitVote()" id="btn-submit-vote" style="background: #ff9f0a;">Treo Cổ Nó 🔪</button>
+            <button onclick="skipVote()" class="btn-secondary">Bỏ qua (Skip)</button>
+        </div>
+
+        <!-- Chat in-game (Chỉ bật ban ngày hoặc cho sói ban đêm) -->
+        <div class="chat-box" id="ingame-chat-box">
+            <div class="chat-messages" id="ingame-chat"></div>
+            <div class="chat-input-wrapper">
+                <input type="text" id="chat-input-ingame" placeholder="Mõm đi..." onkeypress="if(event.key === 'Enter') sendChat('ingame')">
+                <button onclick="sendChat('ingame')">Gửi</button>
+            </div>
+        </div>
     </div>
 
     <script src="https://ma-s-i-of-longg.onrender.com/socket.io/socket.io.js"></script>
     <script>
         const socket = io('https://ma-s-i-of-longg.onrender.com');
         let myUsername = '';
+        let myNickname = '';
         let mySkin = 'nam';
+        let myRole = '';
         let currentRoomId = null;
+        let selectedTarget = null;
+        
+        // Voice Chat Variables (WebRTC / Streams)
+        let localStream = null;
+        let peerConnections = {}; 
+        let isMicOn = false;
+        let isSpeakerOn = true;
 
         const ALL_ROLES = [
             'Dân Làng', 'Tiên Tri', 'Bảo Vệ', 'Thợ Săn', 'Phù Thủy', 'Thần Tình Yêu', 
-            'Chị Em', 'Thị Trưởng', 'Hoàng Tử', 'Người Thổi Còi', 'Già Làng', 'Thám Tử', 
-            'Người Hóa Sói', 'Tiên Tri Tập Sự', 'Ma Sói', 'Sói Con', 'Pháp Sư Sói', 
-            'Kẻ Phản Bội', 'Sói Huyền Bí', 'Sói Đầu Đàn', 'Sói Mơ Ngủ', 'Kẻ Chán Đời', 
-            'Ma Cà Rồng', 'Trưởng Giáo Phái', 'Kẻ Ám Sát', 'Người Thay Đổi', 'Đứa Trẻ Hoang Dã'
-        ];
+            'Thị Trưởng', 'Già Làng', 'Ma Sói', 'Sói Con', 'Bán Sói'
+        ]; // Tạm rút gọn UI để chọn dễ, m có thể ném 27 role vào lại
 
         const rolesGrid = document.getElementById('manual-roles');
         ALL_ROLES.forEach(role => {
             rolesGrid.innerHTML += `<label><input type="checkbox" value="${role}" class="role-cb"> ${role}</label>`;
         });
 
+        /* --- TIỆN ÍCH UI --- */
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
@@ -135,20 +220,40 @@
             document.getElementById(screenId).classList.add('active');
         }
 
-        function register() {
-            const nickname = document.getElementById('reg-nickname').value;
-            myUsername = document.getElementById('reg-username').value;
-            const password = document.getElementById('reg-password').value;
-            if(!nickname || !myUsername || !password) return showToast('Điền thiếu kìa m mù à 💀');
-            socket.emit('register', { nickname, username: myUsername, password });
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active-tab'));
+            event.target.classList.add('active-tab');
+            document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
         }
 
-        socket.on('register_error', data => showToast(data.msg));
-        socket.on('register_success', data => {
-            document.getElementById('welcome-text').innerText = `Hello ${data.nickname} ✨`;
+        /* --- XÁC THỰC (AUTH) --- */
+        function register() {
+            const nickname = document.getElementById('reg-nickname').value;
+            const username = document.getElementById('reg-username').value;
+            const password = document.getElementById('reg-password').value;
+            if(!nickname || !username || !password) return showToast('Điền thiếu kìa m mù à 💀');
+            socket.emit('register', { nickname, username, password });
+        }
+
+        function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            if(!username || !password) return showToast('Điền info đi má 💀');
+            socket.emit('login', { username, password });
+        }
+
+        socket.on('register_success', data => { showToast('Tạo acc xong! Vô đăng nhập đi 💅'); switchAuthTab('login'); });
+        socket.on('auth_error', data => showToast(data.msg));
+        
+        socket.on('login_success', data => {
+            myUsername = data.username;
+            myNickname = data.nickname;
+            document.getElementById('welcome-text').innerText = `Hello ${myNickname} ✨`;
             switchScreen('screen-skin');
         });
 
+        /* --- SKIN & MENU --- */
         function selectSkin(skin) {
             mySkin = skin;
             socket.emit('set_skin', { username: myUsername, skin });
@@ -156,12 +261,30 @@
             switchScreen('screen-menu');
         }
 
+        /* --- BẢNG XẾP HẠNG --- */
+        function showLeaderboard() {
+            socket.emit('get_leaderboard');
+            switchScreen('screen-leaderboard');
+        }
+
+        socket.on('leaderboard_data', data => {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = data.map((user, index) => `
+                <div class="rank-item">
+                    <span>#${index + 1} ${user.nickname}</span>
+                    <span>${user.wins || 0} Trận Win 🏆</span>
+                </div>
+            `).join('');
+        });
+
+        /* --- PHÒNG CHƠI --- */
         function toggleRoles() {
             const type = document.getElementById('setup-type').value;
             document.getElementById('manual-roles').style.display = type === 'manual' ? 'grid' : 'none';
         }
 
         function showCreateRoom() { switchScreen('screen-create'); }
+        function showJoinRoom() { socket.emit('get_rooms'); switchScreen('screen-join'); }
 
         function createRoom() {
             const maxPlayers = document.getElementById('room-max').value;
@@ -176,80 +299,177 @@
 
         socket.on('room_error', data => showToast(data.msg));
         
-        socket.on('room_created', data => {
-            currentRoomId = data.roomId;
-            document.getElementById('current-room-id').innerText = data.roomId;
-            document.getElementById('btn-start').style.display = 'block'; 
-            updatePlayerList(data.room.players);
-            switchScreen('screen-waiting');
-        });
-
-        function showJoinRoom() {
-            socket.emit('get_rooms');
-            switchScreen('screen-join');
-        }
-
         socket.on('room_list', rooms => {
             const list = document.getElementById('room-list');
-            list.innerHTML = '';
-            if(rooms.length === 0) return list.innerHTML = '<p>Trống trơn, m tự tạo đi 💀</p>';
-            rooms.forEach(r => {
-                list.innerHTML += `
-                    <div class="room-item">
-                        <span>Phòng ${r.id} (${r.players.length}/${r.maxPlayers} ng)</span>
-                        <button onclick="joinRoom('${r.id}')">Vô</button>
-                    </div>`;
-            });
+            list.innerHTML = rooms.length ? rooms.map(r => `
+                <div class="room-item">
+                    <span>Phòng ${r.id} (${r.players.length}/${r.maxPlayers} ng)</span>
+                    <button onclick="joinRoom('${r.id}')">Vô</button>
+                </div>`).join('') : '<p>Trống trơn, m tự tạo đi 💀</p>';
         });
 
-        function joinRoom(roomId) {
-            socket.emit('join_room', { username: myUsername, roomId });
-        }
-
-        function quickJoin() {
-            socket.emit('quick_join', { username: myUsername });
-        }
+        function joinRoom(roomId) { socket.emit('join_room', { username: myUsername, roomId }); }
+        function quickJoin() { socket.emit('quick_join', { username: myUsername }); }
 
         socket.on('player_joined', data => {
             currentRoomId = data.room.id;
             document.getElementById('current-room-id').innerText = currentRoomId;
             document.getElementById('btn-start').style.display = data.room.host === myUsername ? 'block' : 'none';
-            updatePlayerList(data.room.players);
-            if(document.getElementById('screen-waiting').classList.contains('active') === false) {
-                switchScreen('screen-waiting');
-            }
+            updatePlayerListUI('player-list-ui', data.room.players, false);
+            if(!document.getElementById('screen-waiting').classList.contains('active')) switchScreen('screen-waiting');
         });
 
-        function updatePlayerList(players) {
-            const ui = document.getElementById('player-list-ui');
-            ui.innerHTML = players.map(p => `<div>${p.skin === 'nam' ? '🧍‍♂️' : '🧍‍♀️'} ${p.nickname}</div>`).join('');
+        function updatePlayerListUI(elementId, players, selectable = false) {
+            const ui = document.getElementById(elementId);
+            ui.innerHTML = players.map(p => `
+                <div class="player-item" id="player-${p.username}" onclick="${selectable ? `selectPlayer('${p.username}')` : ''}">
+                    <span>${p.skin === 'nam' ? '🧍‍♂️' : '🧍‍♀️'} ${p.nickname}</span>
+                </div>
+            `).join('');
         }
 
-        function startGame() {
-            socket.emit('start_game', { username: myUsername, roomId: currentRoomId });
+        function leaveRoom() {
+            socket.emit('leave_room', { roomId: currentRoomId, username: myUsername });
+            currentRoomId = null;
+            stopVoiceChat();
+            switchScreen('screen-menu');
         }
+
+        /* --- CHAT --- */
+        function sendChat(context) {
+            const inputField = document.getElementById(`chat-input-${context}`);
+            const text = inputField.value.trim();
+            if(!text) return;
+            socket.emit('chat_message', { roomId: currentRoomId, username: myUsername, nickname: myNickname, text });
+            inputField.value = '';
+        }
+
+        socket.on('receive_chat', data => {
+            const msgHtml = `<div><b>${data.nickname}:</b> ${data.text}</div>`;
+            document.getElementById('waiting-chat').innerHTML += msgHtml;
+            document.getElementById('ingame-chat').innerHTML += msgHtml;
+            document.getElementById('waiting-chat').scrollTop = 9999;
+            document.getElementById('ingame-chat').scrollTop = 9999;
+        });
+
+        /* --- VOICE CHAT (CƠ BẢN BẰNG LUỒNG WEBRTC/SOCKET) --- */
+        async function toggleMic() {
+            const btn = document.getElementById('btn-mic');
+            if(!isMicOn) {
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    isMicOn = true;
+                    btn.innerText = "Tắt Mic 🎙️";
+                    btn.classList.remove('muted');
+                    btn.style.background = "#ff3b30";
+                    showToast("Đã bật Mic, cẩn thận văng tục 💅");
+                    // Ở bản Full, chỗ này sẽ kích hoạt WebRTC emit qua socket cho các peer.
+                    socket.emit('voice_join', { roomId: currentRoomId, username: myUsername });
+                } catch(e) { showToast("Méo lấy đc quyền Mic 💀"); }
+            } else {
+                stopVoiceChat();
+                btn.innerText = "Bật Mic 🎙️";
+                btn.classList.add('muted');
+                btn.style.background = "#28a745";
+            }
+        }
+        function toggleSpeaker() {
+            isSpeakerOn = !isSpeakerOn;
+            document.getElementById('btn-speaker').innerText = isSpeakerOn ? "Tắt Âm 🔇" : "Bật Âm 🔊";
+            showToast(isSpeakerOn ? "Đã bật loa" : "Đã điếc");
+            // Mute all remote audio elements here
+        }
+        function stopVoiceChat() {
+            if(localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+            isMicOn = false;
+        }
+
+        /* --- GAMEPLAY (ĐÊM & NGÀY) --- */
+        function startGame() { socket.emit('start_game', { username: myUsername, roomId: currentRoomId }); }
 
         socket.on('game_started', data => {
             showToast(data.msg);
+            document.getElementById('ingame-chat').innerHTML = ''; // Reset chat
             switchScreen('screen-playing');
         });
 
         socket.on('your_role', data => {
-            document.getElementById('my-role').innerText = `MÀY LÀ: ${(data.role || "Chưa rõ").toUpperCase()}`;
+            myRole = data.role;
+            document.getElementById('my-role').innerText = `MÀY LÀ: ${myRole.toUpperCase()}`;
+            // Custom mô tả tuỳ role
+            let desc = "Suỵt, ngậm miệng lại ngủ đi m 💀";
+            if(myRole === 'Ma Sói') desc = "Đêm nay chọn đứa để cắn nào 🐺🩸";
+            else if(myRole === 'Tiên Tri') desc = "Soi xem ai là sói m ơi 👁️";
+            else if(myRole === 'Bảo Vệ') desc = "Chọn người để buff khiên 🛡️";
+            document.getElementById('role-desc').innerText = desc;
         });
 
-        // LOGIC BAN ĐÊM (Xử lý khi server gửi start_night)
+        // HÀNH ĐỘNG ĐÊM
         socket.on('start_night', data => {
-            document.getElementById('night-title').innerText = `Đêm thứ ${data.nightNumber} 🌑`;
-            document.getElementById('night-player-list').innerHTML = document.getElementById('player-list-ui').innerHTML;
-            switchScreen('screen-night');
-            console.log("Sang đêm r đó má ✨");
+            document.getElementById('phase-title').innerText = `Đêm thứ ${data.nightNumber} 🌑`;
+            document.body.style.backgroundColor = '#0a0a0c'; // Tối đi
+            
+            selectedTarget = null;
+            document.getElementById('day-vote-box').style.display = 'none';
+            
+            // Nếu là role có chức năng đêm
+            if(['Ma Sói', 'Tiên Tri', 'Bảo Vệ', 'Phù Thủy'].includes(myRole)) {
+                document.getElementById('night-action-box').style.display = 'block';
+                updatePlayerListUI('action-player-list', data.alivePlayers, true);
+            } else {
+                document.getElementById('night-action-box').style.display = 'none';
+            }
         });
 
-        function leaveRoom() {
-            currentRoomId = null;
-            switchScreen('screen-menu');
+        function selectPlayer(username) {
+            document.querySelectorAll('.player-item').forEach(el => el.classList.remove('player-selected'));
+            document.getElementById(`player-${username}`).classList.add('player-selected');
+            selectedTarget = username;
         }
+
+        function submitAction() {
+            if(!selectedTarget) return showToast("Chọn 1 đứa đi má 🙄");
+            socket.emit('night_action', { roomId: currentRoomId, username: myUsername, role: myRole, target: selectedTarget });
+            document.getElementById('night-action-box').style.display = 'none';
+            showToast("Đã chốt hành động! Đợi tụi kia...");
+        }
+
+        // HÀNH ĐỘNG NGÀY (VOTE)
+        socket.on('start_day', data => {
+            document.getElementById('phase-title').innerText = `Sáng rồi đậy đi ☀️`;
+            document.body.style.backgroundColor = '#1a1a1d'; // Sáng lại
+            
+            document.getElementById('night-action-box').style.display = 'none';
+            document.getElementById('day-vote-box').style.display = 'block';
+            
+            if(data.deadPlayers.length > 0) {
+                showToast(`Đêm qua tụi nó làm thịt: ${data.deadPlayers.join(', ')} 🪦`);
+            } else {
+                showToast("Đêm qua bình yên vãi, méo ai chết ✨");
+            }
+
+            updatePlayerListUI('vote-player-list', data.alivePlayers, true);
+        });
+
+        function submitVote() {
+            if(!selectedTarget) return showToast("Chọn người để treo cổ đi má 🙄");
+            socket.emit('day_vote', { roomId: currentRoomId, username: myUsername, target: selectedTarget });
+            document.getElementById('day-vote-box').style.display = 'none';
+            showToast("Đã bỏ phiếu treo cổ!");
+        }
+
+        function skipVote() {
+            socket.emit('day_vote', { roomId: currentRoomId, username: myUsername, target: 'skip' });
+            document.getElementById('day-vote-box').style.display = 'none';
+            showToast("Đã chọn Skip!");
+        }
+
+        // KẾT THÚC GAME
+        socket.on('game_over', data => {
+            showToast(`GAME OVER! Phe thắng: ${data.winner.toUpperCase()} 🏆`);
+            setTimeout(() => { switchScreen('screen-waiting'); }, 5000);
+        });
+
     </script>
 </body>
 </html>
